@@ -48,6 +48,10 @@ def main(counter):
                 print(age)
                 counter+=1
                 continue
+            except pytube.exceptions.RecordingUnavailable as record:
+                print(record)
+                counter += 1
+                continue
     check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title)
 
 def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title):
