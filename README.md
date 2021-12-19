@@ -11,3 +11,4 @@ Download entire playlists on youtube into a zip file, keep it organized and clea
 ## What it doesn't do yet:
 1. It doesn't download age restricted content
 2. It doesn't download live content
+3. Convert .mp4's to .mp3's
