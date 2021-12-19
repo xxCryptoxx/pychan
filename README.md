@@ -5,10 +5,6 @@
 - pathlib
 - os
 
-## Aim:
-Pychan is a basic script used to download youtube playlists for offline pleasure.
-
-
 ## Features:
 Download entire playlists on youtube into a zip file, keep it organized and clean.
 
