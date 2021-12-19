@@ -19,6 +19,7 @@ def main(counter):
     ]
     playlist = Playlist(playlist_url).videos
     playlist_title = Playlist(playlist_url).title
+    playlist_owner = Playlist(playlist_url).owner
     amount_of_songs = 0
     print(f'PLAYLIST: {playlist_title} - {len(playlist)} songs\n')
 
@@ -37,7 +38,7 @@ def main(counter):
             # if the file doesnt exist then try download
             try:
                 # download begins here
-                print(f'DOWNLOAD: {audio_title}')
+                print(f'DOWNLOAD [{counter}]: {audio_title}')
                 audio.streams.get_audio_only().download()
                 print(f'COMPLETE: {audio_title}')
                 completed_downloads+= 1
@@ -52,9 +53,9 @@ def main(counter):
                 print(record)
                 counter += 1
                 continue
-    check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title)
+    check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title, playlist_owner)
 
-def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title):
+def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title, playlist_owner):
     print(f'PLAYLIST: {playlist_title} - {len(playlist)} songs')
     files = 0
     entries = []
@@ -64,13 +65,13 @@ def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_ti
             entries.append(file)
             files += 1
     print(f'LOCAL: {playlist_title} - {str(files)} songs\n')
-    zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries)
+    zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner)
 
-def zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries):
+def zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner):
     print(f'CURRENT FILES: {entries}')
     if amount_of_songs == len(playlist):
         files_that_were_zipped = 0
-        zip = ZipFile(playlist_title + '.zip', 'w')
+        zip = ZipFile(playlist_owner+ '-' + playlist_title + '.zip', 'w')
 
         for file in entries:
             print(f'ZIPPING: {file}')
@@ -87,9 +88,13 @@ def zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title,
 
 def clean_up_files(entries):
     for file in entries:
-        print('REMOVAL: IN PROGRESS')
-        os.remove(file)
-        print('REMOVAL: COMPLETED')
+        try:
+            print('REMOVAL: IN PROGRESS')
+            os.remove(file)
+            print('REMOVAL: COMPLETED')
+        except PermissionError as pe:
+            print(pe)
+            continue
     print('COMPLETED: TASKS HAVE BEEN SUCCESSFULLY COMPLETED')
 
 main(counter)
