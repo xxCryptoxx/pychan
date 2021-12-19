@@ -1,13 +1,10 @@
 # Python Youtube channel downloader
-from os import name
-import threading
 import zipfile
-from pytube import Playlist
+from zipfile import ZipFile
 import pytube
+from pytube import Playlist
 from pathlib import Path
 import os
-from zipfile import ZipFile
-import time
 
 counter = 0
 playlist_url = input(str('Insert Playlist URL: '))
