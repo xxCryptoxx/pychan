@@ -1,14 +1,16 @@
 # Python Youtube channel downloader
 import zipfile
 from zipfile import ZipFile
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_audio
 import pytube
 from pytube import Playlist
 from pathlib import Path
 import os
+from moviepy.editor import *
+import time
 
 counter = 0
 playlist_url = input(str('Insert Playlist URL: '))
-
 
 def main(counter):
     ignored = [
@@ -24,13 +26,14 @@ def main(counter):
     print(f'PLAYLIST: {playlist_title} - {len(playlist)} songs\n')
 
     for audio in playlist:
-        audio_title = audio.title + ".mp4"
+        audio_title = audio.title + ".mp3"
         amount_of_songs+=1
         completed_downloads = 0
+        time.sleep(0.5)
 
         # check to see if the file exists
         if Path(audio_title).is_file():
-            print(f'EXISTS: {audio_title}')
+            print(f'FILE EXISTS: {audio_title}')
             counter+= 1
             completed_downloads+= 1
             continue
@@ -55,8 +58,9 @@ def main(counter):
                 continue
     check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title, playlist_owner)
 
+# check if the files are appended to the entries list
 def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_title, playlist_owner):
-    print(f'PLAYLIST: {playlist_title} - {len(playlist)} songs')
+    print(f'CHECKING FILES: {playlist_title} - {len(playlist)} songs')
     files = 0
     entries = []
     for file in os.listdir():
@@ -65,10 +69,25 @@ def check_the_files(amount_of_songs, playlist, playlist_title, ignored, audio_ti
             entries.append(file)
             files += 1
     print(f'LOCAL: {playlist_title} - {str(files)} songs\n')
+    convert_to_mp3(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner)
+
+def convert_to_mp3(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner):
+    print('CONVERTING: MP4 TO MP3')
+    for entry in entries:
+        mp4_file = os.path.abspath(entry)
+        mp3_file = os.path.abspath(str(entry).replace('mp4', 'mp3'))        
+
+        ffmpeg_extract_audio(mp4_file, mp3_file)
+        print(f'CONVERTED: "{mp4_file}" to .mp3')
+        # remove the mp4_file from the directory
+        os.remove(mp4_file)
+        print(f'REMOVED: {mp4_file}')
+
     zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner)
 
+# zip the files in the current directory
 def zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title, entries, playlist_owner):
-    print(f'CURRENT FILES: {entries}')
+    print(f'ZIPPING: {entries}')
     if amount_of_songs == len(playlist):
         files_that_were_zipped = 0
         zip = ZipFile(playlist_owner+ '-' + playlist_title + '.zip', 'w')
@@ -87,6 +106,7 @@ def zipPlaylist(amount_of_songs, playlist, playlist_title, ignored, audio_title,
         print('Hit Else.')
 
 def clean_up_files(entries):
+    print(f'CLEANING UP: {entries}')
     for file in entries:
         try:
             print('REMOVAL: IN PROGRESS')
